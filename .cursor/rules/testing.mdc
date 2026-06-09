@@ -1,0 +1,54 @@
+---
+description: 单元测试与测试编写规范
+globs: "**/*.{test,spec}.{ts,tsx}"
+alwaysApply: false
+---
+
+# 测试规范
+
+## 框架与位置
+
+- 首选 **Vitest**；测试文件与源文件同目录 `*.test.ts` 或 `__tests__/`
+- 每个包的公共 API 必须有测试覆盖
+
+## 命名与结构
+
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { debounce } from './debounce';
+
+describe('debounce', () => {
+  it('invokes trailing callback after wait', async () => {
+    vi.useFakeTimers();
+    const fn = vi.fn();
+    const debounced = debounce(fn, 100);
+
+    debounced();
+    expect(fn).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledOnce();
+
+    vi.useRealTimers();
+  });
+});
+```
+
+## 原则
+
+- **Arrange-Act-Assert**：结构清晰
+- 一个 `it` 只测一个行为
+- 用 `describe` 按函数/模块分组
+- Mock 外部 IO（网络、文件、时间）；不 mock 被测单元内部逻辑
+- 测试名描述行为：`returns empty array when input is null`
+
+## 覆盖率（建议基线）
+
+- 语句/分支覆盖率 ≥ 80%（公共 API 100%）
+- 不追求无意义覆盖率；重点测边界与错误路径
+
+## 禁止
+
+- 不提交 `.only` / `.skip` 到主分支
+- 测试不依赖执行顺序
+- 不测试第三方库本身的行为

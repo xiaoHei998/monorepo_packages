@@ -1,0 +1,46 @@
+---
+description: Monorepo 核心约定与全局开发原则
+alwaysApply: true
+---
+
+# Monorepo 核心约定
+
+## 技术栈（预期）
+
+- **包管理**: pnpm workspaces（首选）或 npm workspaces
+- **语言**: TypeScript（strict 模式）
+- **构建**: tsup / unbuild / tsdown（按包选择，优先 zero-config）
+- **测试**: Vitest（首选）或 Jest
+- **Lint**: ESLint 9+ 扁平配置 + Prettier
+- **版本**: Changesets（推荐）或 conventional commits + automated release
+
+## 包命名
+
+- scoped 包名：`@<scope>/<package-name>`（如 `@yourname/utils`）
+- 目录名与包名 kebab-case 一致：`packages/my-utils` → `@yourname/my-utils`
+- 单包职责单一，避免「万能工具包」
+
+## 文件与模块
+
+- 源码放 `src/`，构建产物放 `dist/`（不提交 dist，除非特殊需求）
+- 每个包必须有：`package.json`、`README.md`、`src/index.ts`（入口）
+- 禁止在 `packages/` 之间循环依赖；共享逻辑抽到 `@scope/shared` 或独立包
+
+## 导入路径
+
+```typescript
+// ✅ 包内相对导入
+import { foo } from './foo';
+
+// ✅ 跨包通过 workspace 协议
+import { bar } from '@yourname/shared';
+
+// ❌ 禁止跨包相对路径穿越
+import { bar } from '../../other-package/src/bar';
+```
+
+## 禁止事项
+
+- 不提交 `node_modules/`、`.env`、密钥、本地配置
+- 不在根目录放业务逻辑，根目录只做 workspace 编排
+- 不引入未使用的依赖；不复制粘贴大段重复代码而不抽取

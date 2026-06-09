@@ -1,0 +1,63 @@
+---
+description: TypeScript 开发规范
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript 规范
+
+## 编译选项（基线）
+
+- `"strict": true` — 不可关闭
+- `"noUncheckedIndexedAccess": true`
+- `"exactOptionalPropertyTypes": true`（推荐）
+- `"moduleResolution": "bundler"` 或 `"node16"`
+- `"declaration": true`, `"declarationMap": true`
+
+## 类型编写
+
+```typescript
+// ✅ 明确导出公共类型
+export type DebounceOptions = {
+  leading?: boolean;
+  trailing?: boolean;
+};
+
+// ✅ 用 interface 描述可扩展对象形状
+export interface Logger {
+  info(message: string, meta?: Record<string, unknown>): void;
+}
+
+// ❌ 避免 any；用 unknown + 类型收窄
+function parse(input: unknown): Result {
+  if (typeof input !== 'string') throw new TypeError('Expected string');
+  // ...
+}
+
+// ❌ 避免 enum；用 const object + union
+export const Status = { Idle: 'idle', Loading: 'loading' } as const;
+export type Status = (typeof Status)[keyof typeof Status];
+```
+
+## 函数与 API
+
+- 公共函数必须有显式返回类型
+- 参数超过 3 个时用 options 对象
+- 异步函数返回 `Promise<T>`，不混用 callback
+- 泛型命名：`T`/`K`/`V` 或语义化 `TValue`、`TError`
+
+## 模块
+
+- 使用 `export type` 单独导出类型（便于 tree-shaking）
+- 入口 `index.ts` 只做 re-export，不写业务逻辑
+- 禁止 `@ts-ignore`；必要时 `@ts-expect-error` 并附原因
+
+## 文件组织
+
+```
+src/
+  index.ts          # 公共 API 入口
+  foo.ts            # 实现
+  foo.test.ts       # 测试（或 __tests__/）
+  types.ts          # 仅类型（可选）
+```

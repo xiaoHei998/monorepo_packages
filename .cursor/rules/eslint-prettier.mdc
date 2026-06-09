@@ -1,0 +1,59 @@
+---
+description: ESLint、Prettier 与代码风格规范
+globs: "**/*.{ts,tsx,js,mjs,cjs,json}"
+alwaysApply: false
+---
+
+# ESLint & Prettier
+
+## 工具配置原则
+
+- ESLint 9+ **扁平配置**（`eslint.config.js`），根目录一份，各包可 extends
+- Prettier 负责格式化，ESLint 负责逻辑与最佳实践；避免规则冲突
+- 推荐：`@eslint/js` + `typescript-eslint` + `eslint-config-prettier`
+
+## 必开 ESLint 规则（建议）
+
+| 类别 | 规则方向 |
+|-----|---------|
+| 正确性 | `no-unused-vars`, `@typescript-eslint/no-explicit-any`, `no-floating-promises` |
+| 导入 | `import/order`（分组：builtin → external → internal → relative） |
+| 一致性 | `@typescript-eslint/consistent-type-imports`（`import type`） |
+| 安全 | `no-eval`, `no-implied-eval` |
+
+## 代码风格
+
+```typescript
+// ✅ type-only import
+import type { Foo } from './types';
+import { bar } from './bar';
+
+// ✅ 单引号、分号、尾逗号（由 Prettier 统一）
+const opts = {
+  timeout: 300,
+  leading: true,
+};
+
+// ✅ 早返回，减少嵌套
+function validate(id: string): boolean {
+  if (!id) return false;
+  if (id.length > 64) return false;
+  return true;
+}
+```
+
+## 命名
+
+| 类型 | 风格 | 示例 |
+|-----|------|-----|
+| 变量/函数 | camelCase | `getUserById` |
+| 类型/接口/类 | PascalCase | `HttpClient` |
+| 常量 | UPPER_SNAKE 或 camelCase | `MAX_RETRIES` |
+| 文件名 | kebab-case 或与导出一致 | `debounce.ts` |
+| 私有成员 | `#field` 或 `_prefix`（项目内统一一种） |
+
+## 禁止
+
+- 不 disable 整条文件的 eslint（`eslint-disable` 文件级）
+- 行内 disable 必须附 `reason` 注释
+- 不提交未格式化的代码；保存时 format on save

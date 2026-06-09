@@ -1,0 +1,44 @@
+---
+description: 安全、依赖管理与敏感信息规范
+alwaysApply: true
+---
+
+# 安全与依赖
+
+## 敏感信息
+
+- **绝不**提交：API Key、Token、密码、`.env`（除 `.env.example`）
+- 日志中不打印密钥、PII
+- CI 密钥用 GitHub Actions Secrets，不写进仓库
+
+## 依赖管理
+
+- 新增依赖前确认：是否必要、包体积、维护状态、license 兼容
+- 优先 pin 主版本，定期 `pnpm audit` / Dependabot
+- 不依赖未维护或 weekly downloads 极低的包（除非有充分理由）
+- `peerDependencies` 范围宽松但文档说明兼容版本
+
+## 供应链
+
+- lockfile（`pnpm-lock.yaml`）必须提交
+- 不运行来源不明的 install 脚本
+- 发布前 `pnpm pack` 检查 tarball 内容
+
+## Library 安全实践
+
+```typescript
+// ✅ 校验外部输入
+export function parseConfig(raw: unknown): Config {
+  return configSchema.parse(raw); // zod / valibot 等
+}
+
+// ❌ 不执行用户传入的动态代码
+eval(userInput);
+new Function(userInput)();
+```
+
+## License
+
+- 默认 MIT（与根 LICENSE 一致）
+- 每个包 `package.json` 声明 `"license": "MIT"`
+- 引入第三方代码须保留 license 声明

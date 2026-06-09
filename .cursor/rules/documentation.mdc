@@ -1,0 +1,52 @@
+---
+description: README、JSDoc、CHANGELOG 文档规范
+globs: "**/*.{md,ts,tsx}"
+alwaysApply: false
+---
+
+# 文档规范
+
+## 包 README 模板
+
+每个 `packages/*/README.md` 至少包含：
+
+1. **标题与一句话描述**
+2. **安装** `pnpm add @scope/pkg` 或 `npm install @scope/pkg`
+3. **快速开始** 最小可运行示例
+4. **API** 公共函数/类型说明（可链到 JSDoc）
+5. **License**
+
+## JSDoc（公共 API 必填）
+
+```typescript
+/**
+ * Debounce a function call.
+ *
+ * @param fn - Function to debounce
+ * @param wait - Delay in milliseconds
+ * @param options - Leading/trailing edge behavior
+ * @returns Debounced function with cancel/flush helpers
+ *
+ * @example
+ * ```ts
+ * const save = debounce(() => api.save(), 300);
+ * ```
+ */
+export function debounce<T extends (...args: unknown[]) => unknown>(
+  fn: T,
+  wait: number,
+  options?: DebounceOptions,
+): DebouncedFunction<T> { ... }
+```
+
+## CHANGELOG
+
+- 遵循 [Keep a Changelog](https://keepachangelog.com/)
+- 分类：`Added` / `Changed` / `Fixed` / `Removed` / `Breaking`
+- 使用 changesets 时可自动生成，手动维护时每个版本一节
+
+## 注释原则
+
+- 代码应自解释；注释解释 **为什么**，不是 **是什么**
+- 不写过时注释；改代码时同步改文档
+- TODO 必须带 issue 编号或负责人：`// TODO(#123): ...`

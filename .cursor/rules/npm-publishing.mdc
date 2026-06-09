@@ -1,0 +1,54 @@
+---
+description: npm 发布、版本管理与 exports 规范
+globs: "packages/**/package.json"
+alwaysApply: false
+---
+
+# npm 发布规范
+
+## 版本语义（SemVer）
+
+- **MAJOR**：破坏性 API 变更
+- **MINOR**：向后兼容的新功能
+- **PATCH**：向后兼容的 bug 修复
+- 预发布：`1.0.0-beta.1`（通过 changesets 或手动）
+
+## 发布前检查
+
+- [ ] `pnpm build` 成功，产物完整
+- [ ] `pnpm test` / `pnpm lint` / `pnpm typecheck` 通过
+- [ ] `README.md` 与 API 一致
+- [ ] `CHANGELOG.md` 已更新（若使用 changesets 则自动生成）
+- [ ] 无 `.env`、密钥、调试代码、`console.log` 残留
+- [ ] `files` 字段仅包含发布所需文件
+
+## exports 与子路径
+
+```json
+{
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  }
+}
+```
+
+- 新增子路径 export 需同步文档与测试
+- 不 export 内部路径（如 `./dist/internal/*`）
+
+## 发布流程（推荐 Changesets）
+
+1. 开发完成后 `pnpm changeset` 选择 bump 类型
+2. CI 或本地 `changeset version` 更新版本与 changelog
+3. `pnpm publish -r` 或 CI 自动 publish
+4. 打 git tag 对应版本
+
+## 禁止
+
+- 不手动改 `package-lock`/`pnpm-lock` 中版本而不走 changeset
+- 不 publish `@latest` 的 breaking change 作为 patch
+- 不在未测试的包上 publish

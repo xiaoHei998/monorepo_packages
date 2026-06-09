@@ -1,0 +1,40 @@
+---
+description: 包体积、tree-shaking 与性能规范
+globs: "packages/**"
+alwaysApply: false
+---
+
+# 性能与体积
+
+## Tree-shaking
+
+- `"sideEffects": false`（无全局副作用时）
+- 公共 API 使用 named export，避免 default export 大对象
+- 不 re-export 整个第三方库
+
+```typescript
+// ✅
+export { debounce } from './debounce';
+export type { DebounceOptions } from './types';
+
+// ❌ 聚合导出导致无法 tree-shake
+export * from './everything';
+```
+
+## 依赖体积
+
+- 新增 dependency 前评估 bundle size（bundlephobia）
+- 优先零依赖或极轻量实现
+- 可选功能用 optional peer dependency 或 subpath export
+
+## 运行时
+
+- 避免在模块顶层执行重逻辑（读文件、网络请求）
+- 懒加载大模块：`const mod = await import('./heavy')`
+- 热路径避免不必要的对象分配
+
+## Node 兼容
+
+- `engines.node` 声明最低版本（建议 ≥18）
+- 使用 Node 内置 API 时查 compatibility table
+- ESM/CJS 双格式构建时确保行为一致

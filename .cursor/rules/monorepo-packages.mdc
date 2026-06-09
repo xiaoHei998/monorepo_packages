@@ -1,0 +1,67 @@
+---
+description: packages 目录下各 npm 包的结构与依赖规范
+globs: "packages/**"
+alwaysApply: false
+---
+
+# 包结构与依赖
+
+## 单包标准结构
+
+```
+packages/<name>/
+├── package.json
+├── README.md
+├── CHANGELOG.md        # 可选，changesets 可自动生成
+├── tsconfig.json       # extends 根 tsconfig.base.json
+├── src/
+│   ├── index.ts        # 唯一公共入口
+│   └── ...
+└── __tests__/ 或 *.test.ts
+```
+
+## package.json 必填字段
+
+```json
+{
+  "name": "@scope/package-name",
+  "version": "0.0.0",
+  "description": "...",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "engines": { "node": ">=18" }
+}
+```
+
+## 依赖分类
+
+- **dependencies**：运行时必需，尽量少
+- **devDependencies**：构建、测试、类型（`@types/*`）
+- **peerDependencies**：框架类依赖（React、Vue 等），不 bundled
+- workspace 内依赖：`"@scope/shared": "workspace:*"`
+
+## 新增包 checklist
+
+- [ ] 在 `packages/` 创建目录与标准结构
+- [ ] 根 workspace 配置包含该包
+- [ ] `README.md` 含安装、用法、API 说明
+- [ ] 至少一个测试覆盖核心逻辑
+- [ ] 构建产物仅 `dist/`，且被 `.gitignore` 或 `files` 控制
+
+## 跨包引用
+
+- 仅通过 `package.json` 的 workspace 依赖引用
+- 共享类型放 `@scope/types` 或各包 `export type`
+- 禁止复制粘贴其他包源码

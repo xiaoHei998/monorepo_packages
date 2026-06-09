@@ -1,0 +1,49 @@
+---
+description: Git 工作流与 CI 约定
+alwaysApply: true
+---
+
+# Git & CI
+
+## 分支
+
+- `main`：稳定，可发布
+- 功能分支：`feat/<name>`、`fix/<name>`、`chore/<name>`
+
+## Commit 信息（Conventional Commits）
+
+```
+<type>(<scope>): <subject>
+
+feat(utils): add debounce with cancel support
+fix(core): handle empty array edge case
+chore(deps): bump typescript to 5.8
+docs(readme): add installation section
+```
+
+- type: `feat` | `fix` | `docs` | `style` | `refactor` | `test` | `chore` | `ci`
+- scope: 包名，如 `utils`、`core`
+- breaking: `feat!: ...` 或 footer `BREAKING CHANGE:`
+
+## PR 要求
+
+- 小步提交，一个 PR 一个主题
+- 描述含：变更摘要、测试方式、是否 breaking
+- CI 必须通过：lint、typecheck、test、build
+
+## CI 流水线（搭建后预期）
+
+```yaml
+# 典型步骤
+- pnpm install --frozen-lockfile
+- pnpm lint
+- pnpm typecheck
+- pnpm test
+- pnpm build
+```
+
+## AI 约束
+
+- 不 force push `main`
+- 不 skip hooks（`--no-verify`）除非用户明确要求
+- 不 amend 已 push 的 commit（除非用户明确要求）

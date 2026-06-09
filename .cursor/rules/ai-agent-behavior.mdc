@@ -1,0 +1,38 @@
+---
+description: AI 助手在本仓库中的行为约束
+alwaysApply: true
+---
+
+# AI 行为约束
+
+## 必须遵守
+
+1. **范围控制**：只修改与当前任务直接相关的文件；不做「顺便优化」
+2. **先读后写**：改包前先读该包 `package.json`、入口文件、已有测试与 README
+3. **不越权操作**：未经用户明确要求，不执行 `git commit`、`git push`、`npm publish`
+4. **不提前搭建**：用户说「先写规范」时，不初始化 pnpm/turbo/changesets 等脚手架
+5. **保持可运行**：改动后确保 lint、typecheck、test 可通过（若工具链已存在）
+6. **说明 breaking change**：修改公共 API 时必须指出并建议 major 版本 bump
+
+## 代码生成偏好
+
+- 优先编辑现有文件，而非新建冗余文件
+- 新包按 `packages/<name>/` 标准结构创建
+- 公共 API 必须有 TypeScript 类型导出；内部实现不导出
+- 错误信息清晰、可 action；library 代码 throw 自定义 Error 子类
+
+## 沟通
+
+- 与用户：中文
+- 代码/API/注释/commit：英文
+- 给出方案时说明 trade-off，不堆砌无关选项
+
+## 示例：正确的响应方式
+
+```
+用户：给 utils 包加一个 debounce 函数
+→ 读 packages/utils 现有结构
+→ 在 src/ 添加实现 + 测试
+→ 从 index.ts 导出
+→ 不修改其他包
+```

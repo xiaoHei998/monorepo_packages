@@ -1,0 +1,49 @@
+---
+description: 错误处理与日志规范
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# 错误处理
+
+## Library 包
+
+- 对外 throw **自定义 Error 子类**，便于调用方区分
+- 错误 message 人类可读；附加 `cause` 保留原始错误
+
+```typescript
+export class ValidationError extends Error {
+  readonly code = 'VALIDATION_ERROR';
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = 'ValidationError';
+  }
+}
+```
+
+## 异步
+
+```typescript
+// ✅ 不吞错误
+async function load(): Promise<Data> {
+  try {
+    return await fetchData();
+  } catch (error) {
+    throw new LoadError('Failed to load data', { cause: error });
+  }
+}
+
+// ❌ 空 catch
+catch (e) {}
+```
+
+## 返回值 vs throw
+
+- **预期失败**（校验、找不到）：throw 或 Result 类型（项目内统一一种）
+- **可选数据**：返回 `null` / `undefined`，不 throw
+- 公共 API 在 JSDoc 中 `@throws` 说明可能抛出的错误
+
+## 日志
+
+- Library 默认不 `console.log`；提供可选 `logger` 注入
+- 若必须日志，用 `debug` 级别且可关闭
